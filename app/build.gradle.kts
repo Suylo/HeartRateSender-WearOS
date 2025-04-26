@@ -56,4 +56,5 @@ dependencies {
     debugImplementation(libs.ui.test.manifest)
     implementation(libs.health.services.client)
     implementation(libs.guava)
+    implementation(libs.material.icons.extended)
 }

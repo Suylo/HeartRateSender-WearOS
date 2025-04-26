@@ -3,6 +3,8 @@ agp = "8.9.2"
 guava = "31.0.1-android"
 healthServicesClient = "1.1.0-alpha05"
 kotlin = "2.0.21"
+materialIconsExtended = "1.6.0"
+materialIconsOutlined = "1.6.0"
 playServicesWearable = "18.0.0"
 composeBom = "2024.09.00"
 composeMaterial = "1.2.1"
@@ -12,8 +14,10 @@ activityCompose = "1.8.0"
 coreSplashscreen = "1.0.1"
 
 [libraries]
+androidx-material-icons-outlined = { module = "androidx.compose.material:material-icons-outlined", version.ref = "materialIconsOutlined" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 health-services-client = { module = "androidx.health:health-services-client", version.ref = "healthServicesClient" }
+material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 ui = { group = "androidx.compose.ui", name = "ui" }
