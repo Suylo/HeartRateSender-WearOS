@@ -33,5 +33,5 @@
 
 
 ## 🧡 Auteur
-- On va pas se le cacher, je suis très honnête avec vous, je suis pas développeur Kotlin ni Android, donc c'est clairement du ChatGPT. Merci à lui il a fait 90% du taff. Je me permets de m'octroyer les 10% restants car pour l'instant il est pas prêt de nous remplacer 🤡
+- On va pas se le cacher, je suis très honnête avec vous, je suis pas développeur Kotlin ni Android, donc c'est clairement du ChatGPT. Merci à lui il a fait 90% du taff. Je me permets de m'octroyer les 10% restants car pour l'instant ce n'est pas non plus une lumière et que les IA ne sont pas prêtes à nous remplacer 🤡
 
