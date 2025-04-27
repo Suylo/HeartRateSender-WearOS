@@ -7,8 +7,9 @@
 - Envoyer la fréquence sur un serveur et après la récupérer afin de l'afficher sur mon téléphone perso.
 
 ## 🖼️ Visuels
-![Service démarré](utils/hrs_on.png)
-![Service stoppée](utils/hrs_off.png)
+|            Service démaré            |            Service stoppé            |
+|:------------------------------------:|:------------------------------------:|
+| ![Service démarré](utils/hrs_on.png) | ![Service stoppé](utils/hrs_off.png) |
 
 
 ## 🎯 Objectifs principaux atteints
