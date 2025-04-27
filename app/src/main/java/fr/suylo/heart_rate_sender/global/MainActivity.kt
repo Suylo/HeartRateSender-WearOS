@@ -80,6 +80,7 @@ fun HeartRateControls() {
         val granted = permissions.all { it.value }
         if (granted) {
             startHeartRateService(context)
+            isMonitoring = true
         }
     }
 
@@ -97,23 +98,21 @@ fun HeartRateControls() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
         HeartbeatIcon()
 
         Text(
             text = "FC • Sender",
-            color = Color(0xFFFFFFFF),
+            color = Color.White,
             style = MaterialTheme.typography.title2,
             modifier = Modifier.padding(6.dp)
         )
 
         Text(
-            text = "Appuyez pour commencer",
+            text = if (isMonitoring) "Service : en cours" else "Service : arrêté",
             color = Color(0xFFB9B9B9),
-            style = MaterialTheme.typography.caption2
+            style = MaterialTheme.typography.caption2,
+            modifier = Modifier.padding(bottom = 5.dp)
         )
-
-        Spacer(modifier = Modifier.height(10.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -134,8 +133,9 @@ fun HeartRateControls() {
                         )
                     }
                 },
+                enabled = !isMonitoring,
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(0xFF81C784)
+                    backgroundColor = if (isMonitoring) Color.Gray else Color(0xFF81C784)
                 )
             ) {
                 Icon(
@@ -150,8 +150,9 @@ fun HeartRateControls() {
                     stopHeartRateService(context)
                     isMonitoring = false
                 },
+                enabled = isMonitoring,
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(0xFFE57373)
+                    backgroundColor = if (!isMonitoring) Color.Gray else Color(0xFFE57373)
                 )
             ) {
                 Icon(

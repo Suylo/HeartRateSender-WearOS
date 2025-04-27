@@ -39,7 +39,7 @@ class HeartRateService : Service() {
             availability: Availability
         ) {
             if (availability is DataTypeAvailability) {
-                Log.d(tag, "Availability: $availability")
+                Log.d(tag, "Disponibilité : $availability")
             }
         }
 
@@ -64,7 +64,7 @@ class HeartRateService : Service() {
             val capabilities = measureClient.getCapabilitiesAsync().awaitWithException()
             if (DataType.HEART_RATE_BPM in capabilities.supportedDataTypesMeasure) {
                 measureClient.registerMeasureCallback(DataType.HEART_RATE_BPM, measureCallback)
-                Log.d(tag, "MeasureCallback registered.")
+                Log.d(tag, "Mesure démarrée.")
             } else {
                 Log.e(tag, "Heart rate measurement not supported.")
             }
@@ -79,7 +79,7 @@ class HeartRateService : Service() {
         super.onDestroy()
         serviceScope.launch {
             measureClient.unregisterMeasureCallback(DataType.HEART_RATE_BPM, measureCallback)
-            Log.d(tag, "MeasureCallback unregistered.")
+            Log.d(tag, "Mesure stoppée.")
         }
     }
 
