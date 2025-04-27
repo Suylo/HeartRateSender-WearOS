@@ -7,8 +7,8 @@
 - Envoyer la fréquence sur un serveur et après la récupérer afin de l'afficher sur mon téléphone perso.
 
 ## 🖼️ Visuels
-[Service démarré](utils/hrs_on.png)
-[Service stoppée](utils/hrs_off.png)
+![Service démarré](utils/hrs_on.png)
+![Service stoppée](utils/hrs_off.png)
 
 
 ## 🎯 Objectifs principaux atteints
@@ -19,7 +19,7 @@
 
 ## 🚀 Prochaines améliorations prévues
 
-### 1. Notification interactive
+### 1. Notification interactive&
 - Ajouter un bouton "Arrêter" directement dans la notification.
 - Rendre la notification cliquable pour rouvrir l'application facilement.
 
