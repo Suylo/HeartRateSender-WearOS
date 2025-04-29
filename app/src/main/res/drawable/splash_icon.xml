@@ -6,7 +6,7 @@
         android:height="48dp"
         android:gravity="center">
         <shape android:shape="oval">
-            <solid android:color="#FFFFFF" />
+            <solid android:color="#E94F3D" />
         </shape>
     </item>
     <item
@@ -14,14 +14,19 @@
         android:height="40dp"
         android:gravity="center">
         <vector
-            android:width="24dp"
-            android:height="24dp"
-            android:tint="#000000"
-            android:viewportWidth="24"
-            android:viewportHeight="24">
+            android:width="355dp"
+            android:height="355dp"
+            android:viewportWidth="355"
+            android:viewportHeight="355">
             <path
-                android:fillColor="#FF000000"
-                android:pathData="M17.6,11.48 L19.44,8.3a0.63,0.63 0,0 0,-1.09 -0.63l-1.88,3.24a11.43,11.43 0,0 0,-8.94 0L5.65,7.67a0.63,0.63 0,0 0,-1.09 0.63L6.4,11.48A10.81,10.81 0,0 0,1 20L23,20A10.81,10.81 0,0 0,17.6 11.48ZM7,17.25A1.25,1.25 0,1 1,8.25 16,1.25 1.25,0 0,1 7,17.25ZM17,17.25A1.25,1.25 0,1 1,18.25 16,1.25 1.25,0 0,1 17,17.25Z" />
+                android:fillColor="#FFFFFFFF"
+                android:pathData="M295.833,59.1667H59.1666C42.8958,59.1667 29.5833,72.4792 29.5833,88.75V133.125H59.1666V88.75H295.833V133.125H325.417V88.75C325.417,72.4792 312.104,59.1667 295.833,59.1667Z" />
+            <path
+                android:fillColor="#FFFFFFFF"
+                android:pathData="M295.833,266.25H59.1666V221.875H29.5833V266.25C29.5833,282.521 42.8958,295.833 59.1666,295.833H295.833C312.104,295.833 325.417,282.521 325.417,266.25V221.875H295.833V266.25Z" />
+            <path
+                android:fillColor="#FFFFFFFF"
+                android:pathData="M220.248,111.677C215.219,101.619 198.8,101.619 193.771,111.677L147.917,203.533L131.498,170.844C128.983,165.815 123.954,162.708 118.333,162.708H29.5833V192.292H109.162L134.604,243.323C137.267,248.352 142.296,251.458 147.917,251.458C153.537,251.458 158.567,248.352 161.081,243.323L207.083,151.467L223.502,184.156C226.017,189.185 231.046,192.292 236.667,192.292H325.417V162.708H245.837L220.248,111.677Z" />
         </vector>
     </item>
 </layer-list>
