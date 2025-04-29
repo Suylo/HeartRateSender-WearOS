@@ -6,17 +6,21 @@
 - Que je puisse démarrer/arrêter manuellement l'envoie des mesures.
 - Envoyer la fréquence sur un serveur et après la récupérer afin de l'afficher sur mon téléphone perso.
 
+<br>
+
 ## 🖼️ Visuels
 |            Service démaré            |            Service stoppé            |
 |:------------------------------------:|:------------------------------------:|
 | ![Service démarré](utils/hrs_on.png) | ![Service stoppé](utils/hrs_off.png) |
 
+<br>
 
 ## 🎯 Objectifs principaux atteints
 
 - [x] Lecture du Rythme Cardiaque via `Health Services API`.
 - [x] Interface Wear OS avec boutons "Démarrer" et "Arrêter".
 
+<br>
 
 ## 🚀 Prochaines améliorations prévues
 
@@ -28,6 +32,7 @@
 - Envoyer les données de fréquence cardiaque en direct à une API via HTTP.
 - Permettre une visualisation du Rythme Cardiaque en live via une PWA (Qui sera réalisé en Vue.js)
 
+<br>
 
 ## 📦 Stack Technique
 - **Langage** : Kotlin
