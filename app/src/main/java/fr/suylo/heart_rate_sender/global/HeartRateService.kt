@@ -1,108 +1,136 @@
 package fr.suylo.heart_rate_sender.global
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.Service
-import android.content.Intent
+import android.app.*
+import android.content.*
 import android.content.pm.ServiceInfo
-import android.os.Build
-import android.os.IBinder
+import android.hardware.*
+import android.os.*
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import androidx.health.services.client.HealthServices
-import androidx.health.services.client.MeasureCallback
-import androidx.health.services.client.MeasureClient
-import androidx.health.services.client.data.Availability
-import androidx.health.services.client.data.DataPointContainer
-import androidx.health.services.client.data.DataType
-import androidx.health.services.client.data.DataTypeAvailability
-import androidx.health.services.client.data.DeltaDataType
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import androidx.health.services.client.awaitWithException
-import androidx.health.services.client.unregisterMeasureCallback
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.IOException
 
-class HeartRateService : Service() {
+class HeartRateService : Service(), SensorEventListener {
 
     private val tag = "HeartRateService"
     private val channelId = "HeartRateChannel"
-    private lateinit var measureClient: MeasureClient
-    private val serviceScope = CoroutineScope(Dispatchers.Default)
+    private val notificationId = 1
 
-    private val measureCallback = object : MeasureCallback {
-        override fun onAvailabilityChanged(
-            dataType: DeltaDataType<*, *>,
-            availability: Availability
-        ) {
-            if (availability is DataTypeAvailability) {
-                Log.d(tag, "Disponibilité : $availability")
-            }
-        }
+    private lateinit var sensorManager: SensorManager
+    private var hrSensor: Sensor? = null
 
-        override fun onDataReceived(data: DataPointContainer) {
-            val heartRateData = data.getData(DataType.HEART_RATE_BPM)
-            if (heartRateData.isNotEmpty()) {
-                val heartRate = heartRateData.last().value
-                Log.d(tag, "Fréquence Cardiaque : $heartRate")
-                // TODO: Envoyer les données au serveur
-            }
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate() {
         super.onCreate()
-        startForeground(1, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH)
 
-        measureClient = HealthServices.getClient(this).measureClient
+        createNotificationChannel()
+        startForeground(notificationId, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST)
 
-        serviceScope.launch {
-            val capabilities = measureClient.getCapabilitiesAsync().awaitWithException()
-            if (DataType.HEART_RATE_BPM in capabilities.supportedDataTypesMeasure) {
-                measureClient.registerMeasureCallback(DataType.HEART_RATE_BPM, measureCallback)
-                Log.d(tag, "Mesure démarrée.")
-            } else {
-                Log.e(tag, "Heart rate measurement not supported.")
-            }
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        hrSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)
+        hrSensor?.let {
+            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_FASTEST)
         }
+
+        vibrate()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == "STOP_SERVICE") {
+            stopSelf()
+        }
         return START_STICKY
     }
 
     override fun onDestroy() {
+        sensorManager.unregisterListener(this)
+        sendBroadcast(Intent("fr.suylo.heart_rate_sender.ACTION_SERVICE_STOPPED"))
+        vibrate()
+        Log.d(tag, "Mesure stoppée.")
         super.onDestroy()
-        serviceScope.launch {
-            measureClient.unregisterMeasureCallback(DataType.HEART_RATE_BPM, measureCallback)
-            Log.d(tag, "Mesure stoppée.")
-        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+    override fun onSensorChanged(event: SensorEvent) {
+        if (event.sensor.type == Sensor.TYPE_HEART_RATE) {
+            val bpm = event.values[0].toInt()
+            Log.d(tag, "BPM détecté : $bpm")
+            sendBpmToApi(bpm)
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // Non utilisé
+    }
+
+    private fun createNotificationChannel() {
+        val channel = NotificationChannel(
+            channelId,
+            "Surveillance FC",
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Service de surveillance de la fréquence cardiaque"
+        }
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        notificationManager.createNotificationChannel(channel)
+    }
+
     private fun buildNotification(): Notification {
-        val notificationIntent = Intent(this, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            0,
-            notificationIntent,
+        val mainIntent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val pendingMain = PendingIntent.getActivity(
+            this, 0, mainIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         return NotificationCompat.Builder(this, channelId)
-            .setContentTitle("H.R. Watcher")
-            .setContentText("En cours...")
+            .setContentTitle("FC • Sender")
+            .setContentText("Envoie en cours…")
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(pendingMain)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_STATUS)
             .build()
     }
 
+    private fun vibrate() {
+        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        vibrator?.vibrate(
+            VibrationEffect.createOneShot(
+                50,
+                VibrationEffect.DEFAULT_AMPLITUDE
+            )
+        )
+    }
 
+    private fun sendBpmToApi(bpm: Int) {
+        val client = OkHttpClient()
+
+        val json = """{"bpm": $bpm, "timestamp": ${System.currentTimeMillis()}}"""
+        val body = json.toRequestBody("application/json".toMediaType())
+
+        // Serveur privée accessible uniquement via VPN
+        val request = Request.Builder()
+            .url("http://100.100.3.22:3000/bpm")
+            .post(body)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e(tag, "Erreur envoi BPM : ${e.message}")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    Log.d(tag, "BPM $bpm envoyé avec succès")
+                } else {
+                    Log.e(tag, "Erreur serveur: ${response.code}")
+                }
+            }
+        })
+    }
 }

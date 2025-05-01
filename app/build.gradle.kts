@@ -14,7 +14,6 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
     }
 
     buildTypes {
@@ -57,4 +56,5 @@ dependencies {
     implementation(libs.health.services.client)
     implementation(libs.guava)
     implementation(libs.material.icons.extended)
+    implementation(libs.okhttp)
 }

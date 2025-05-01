@@ -1,6 +1,7 @@
 package fr.suylo.heart_rate_sender.global
 
 import android.Manifest
+import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,35 +12,26 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animate
-import androidx.compose.animation.core.tween
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.content.ContextCompat
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.wear.compose.material.Button
-import androidx.wear.compose.material.ButtonDefaults
-import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.TimeText
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.platform.*
+import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.wear.compose.material.*
 import fr.suylo.heart_rate_sender.global.theme.HeartRateSenderTheme
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class MainActivity : ComponentActivity() {
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -72,9 +64,11 @@ fun WearApp() {
 @Composable
 fun HeartRateControls() {
     val context = LocalContext.current
-    var isMonitoring by remember { mutableStateOf(false) }
+    var isMonitoring by remember {
+        mutableStateOf(isHeartRateServiceRunning(context))
+    }
 
-    val launcher = rememberLauncherForActivityResult(
+    val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val granted = permissions.all { it.value }
@@ -88,11 +82,8 @@ fun HeartRateControls() {
         modifier = Modifier
             .fillMaxSize()
             .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFF262626),
-                        Color(0xFF260101)
-                    )
+                Brush.linearGradient(
+                    listOf(Color(0xFF262626), Color(0xFF260101))
                 )
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -125,7 +116,7 @@ fun HeartRateControls() {
                         startHeartRateService(context)
                         isMonitoring = true
                     } else {
-                        launcher.launch(
+                        permissionLauncher.launch(
                             arrayOf(
                                 Manifest.permission.BODY_SENSORS,
                                 Manifest.permission.FOREGROUND_SERVICE_HEALTH
@@ -138,11 +129,7 @@ fun HeartRateControls() {
                     backgroundColor = if (isMonitoring) Color.Gray else Color(0xFF81C784)
                 )
             ) {
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Démarrer",
-                    tint = Color.White
-                )
+                Icon(Icons.Default.PlayArrow, "Démarrer", tint = Color.White)
             }
 
             Button(
@@ -155,11 +142,7 @@ fun HeartRateControls() {
                     backgroundColor = if (!isMonitoring) Color.Gray else Color(0xFFE57373)
                 )
             ) {
-                Icon(
-                    imageVector = Icons.Default.Stop,
-                    contentDescription = "Arrêter",
-                    tint = Color.White
-                )
+                Icon(Icons.Default.Stop, "Arrêter", tint = Color.White)
             }
         }
     }
@@ -167,37 +150,29 @@ fun HeartRateControls() {
 
 @Composable
 fun HeartbeatIcon() {
-    var scale by remember { mutableStateOf(1f) }
+    var scale by remember { mutableFloatStateOf(1f) }
 
     LaunchedEffect(Unit) {
         while (true) {
             animate(
                 initialValue = 1f,
                 targetValue = 1.2f,
-                animationSpec = tween(durationMillis = 500, easing = LinearEasing)
-            ) { value, _ ->
-                scale = value
-            }
+                animationSpec = tween(500, easing = LinearEasing)
+            ) { value, _ -> scale = value }
             animate(
                 initialValue = 1.2f,
                 targetValue = 1f,
-                animationSpec = tween(durationMillis = 500, easing = LinearEasing)
-            ) { value, _ ->
-                scale = value
-            }
+                animationSpec = tween(500, easing = LinearEasing)
+            ) { value, _ -> scale = value }
         }
     }
 
-    Row (
+    Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = "«",
-            color = Color(0xFFB4B4B4),
-            modifier = Modifier.padding(4.dp)
-        )
+        Text("«", color = Color(0xFFB4B4B4), modifier = Modifier.padding(4.dp))
 
         Icon(
             imageVector = Icons.Outlined.FavoriteBorder,
@@ -205,41 +180,35 @@ fun HeartbeatIcon() {
             tint = Color(0xFFFF5858),
             modifier = Modifier
                 .size(32.dp)
-                .graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale
-                )
+                .graphicsLayer(scaleX = scale, scaleY = scale)
         )
 
-        Text(
-            text = "»",
-            color = Color(0xFFB4B4B4),
-            modifier = Modifier.padding(4.dp)
-        )
+        Text("»", color = Color(0xFFB4B4B4), modifier = Modifier.padding(4.dp))
     }
-
-
 }
+
 
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 private fun hasHeartRatePermissions(context: Context): Boolean {
-    return ContextCompat.checkSelfPermission(
-        context,
-        Manifest.permission.BODY_SENSORS
-    ) == PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.FOREGROUND_SERVICE_HEALTH
-            ) == PackageManager.PERMISSION_GRANTED
+    return ContextCompat.checkSelfPermission(context, Manifest.permission.BODY_SENSORS) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.FOREGROUND_SERVICE_HEALTH) == PackageManager.PERMISSION_GRANTED
 }
 
 private fun startHeartRateService(context: Context) {
     val intent = Intent(context, HeartRateService::class.java)
-    context.startService(intent)
+    ContextCompat.startForegroundService(context, intent)
 }
 
 private fun stopHeartRateService(context: Context) {
     val intent = Intent(context, HeartRateService::class.java)
     context.stopService(intent)
+}
+
+private fun isHeartRateServiceRunning(context: Context): Boolean {
+    val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    @Suppress("DEPRECATION")
+    return manager.getRunningServices(Int.MAX_VALUE).any {
+        it.service.className == HeartRateService::class.java.name
+    }
 }
