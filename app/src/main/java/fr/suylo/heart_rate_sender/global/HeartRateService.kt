@@ -11,6 +11,11 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 class HeartRateService : Service(), SensorEventListener {
 
@@ -115,7 +120,7 @@ class HeartRateService : Service(), SensorEventListener {
 
         // Serveur privée accessible uniquement via VPN
         val request = Request.Builder()
-            .url("http://100.100.3.22:3000/bpm")
+            .url("http://100.100.3.22:3001/bpm")
             .post(body)
             .build()
 
